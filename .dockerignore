@@ -1,0 +1,12 @@
+build/
+.gradle/
+.git/
+.idea/
+*.iml
+out/
+.vscode/
+.env
+.env.*
+*.log
+logs/
+.claude/
