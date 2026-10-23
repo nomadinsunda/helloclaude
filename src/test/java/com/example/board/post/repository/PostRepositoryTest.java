@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.example.board.global.config.JpaAuditingConfig;
 import com.example.board.post.domain.Post;
 import com.example.board.support.TestcontainersConfiguration;
+import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -22,6 +24,9 @@ class PostRepositoryTest {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @Test
     void 저장하면_생성_수정_시각이_기록된다() {
         Post saved = postRepository.saveAndFlush(Post.create("제목", "내용", "작성자"));
@@ -29,6 +34,23 @@ class PostRepositoryTest {
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getCreatedAt()).isNotNull();
         assertThat(saved.getUpdatedAt()).isNotNull();
+    }
+
+    @Test
+    void 생성_수정_시각은_마이크로초로_잘려_DB_값과_일치한다() {
+        Post saved = postRepository.saveAndFlush(Post.create("제목", "내용", "작성자"));
+        saved.update("새 제목", "새 내용");
+        postRepository.flush();
+        LocalDateTime createdAt = saved.getCreatedAt();
+        LocalDateTime updatedAt = saved.getUpdatedAt();
+        entityManager.clear();
+
+        Post reloaded = postRepository.findById(saved.getId()).orElseThrow();
+
+        assertThat(createdAt.getNano() % 1_000).isZero();
+        assertThat(updatedAt.getNano() % 1_000).isZero();
+        assertThat(reloaded.getCreatedAt()).isEqualTo(createdAt);
+        assertThat(reloaded.getUpdatedAt()).isEqualTo(updatedAt);
     }
 
     @Test
