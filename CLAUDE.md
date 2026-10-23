@@ -102,6 +102,9 @@ Boot 4는 auto-configuration이 기술별 모듈로 분리되어 있다. 3.x 방
 # 단일 테스트 실행
 ./gradlew test --tests "com.example.board.post.service.PostServiceTest"
 
+# 최초 1회: 환경변수 파일 준비 (.env가 없으면 docker compose가 실패한다)
+cp .env.example .env
+
 # 로컬 실행 (DB는 docker compose로 띄운 상태에서)
 docker compose up -d db
 ./gradlew bootRun --args='--spring.profiles.active=local'
@@ -115,7 +118,7 @@ docker compose down          # 데이터 유지
 docker compose down -v       # 볼륨(데이터)까지 삭제
 ```
 
-> Windows PowerShell에서는 `./gradlew` 대신 `.\gradlew.bat`을 사용한다.
+> Windows PowerShell에서는 `./gradlew` 대신 `.\gradlew.bat`을, `cp` 대신 `Copy-Item`을 사용한다.
 
 ## Docker 구성 원칙
 
