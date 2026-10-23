@@ -49,7 +49,10 @@ public class PostService {
         postRepository.delete(findPost(postId));
     }
 
-    private Post findPost(Long postId) {
+    /**
+     * 다른 도메인(댓글 등)에서 게시글 엔티티가 필요할 때 사용한다. 없으면 {@link ErrorCode#POST_NOT_FOUND}.
+     */
+    public Post findPost(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
     }
